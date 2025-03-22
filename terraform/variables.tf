@@ -1,10 +1,10 @@
 variable "environment" {
-  description = "Ambiente de implantação (dev, prod)"
+  description = "Environment name"
   type        = string
 }
 
 variable "aws_region" {
-  description = "Região da AWS"
+  description = "AWS Region"
   type        = string
 }
 

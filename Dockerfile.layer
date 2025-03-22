@@ -1,0 +1,41 @@
+FROM amazonlinux:2
+
+# Instalar dependências
+RUN yum update -y && \
+    yum install -y python39 python39-pip zip unzip tar gzip && \
+    yum clean all
+
+# Criar diretório de trabalho
+WORKDIR /layer
+
+# Criar estrutura de diretórios
+RUN mkdir -p python/lib/python3.9/site-packages && \
+    mkdir -p opt
+
+# Instalar dependências Python
+RUN pip3 install --target python/lib/python3.9/site-packages \
+    pandas \
+    pyarrow \
+    selenium \
+    webdriver_manager \
+    python-dotenv
+
+# Baixar Chrome e ChromeDriver
+RUN curl -SL https://github.com/adieuadieu/serverless-chrome/releases/download/v1.0.0-55/stable-headless-chromium-amazonlinux-2.zip > headless-chromium.zip && \
+    unzip headless-chromium.zip -d opt/ && \
+    rm headless-chromium.zip
+
+RUN CHROMEDRIVER_VERSION=$(curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE) && \
+    curl -SL https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip > chromedriver.zip && \
+    unzip chromedriver.zip -d opt/ && \
+    rm chromedriver.zip
+
+# Dar permissões de execução
+RUN chmod 755 opt/headless-chromium && \
+    chmod 755 opt/chromedriver
+
+# Criar ZIP do layer
+RUN zip -r /scraper_dependencies.zip python opt/
+
+# Definir o comando padrão para copiar o ZIP
+CMD ["cp", "/scraper_dependencies.zip", "/output/"] 
