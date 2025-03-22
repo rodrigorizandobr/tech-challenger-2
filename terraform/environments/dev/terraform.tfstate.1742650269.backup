@@ -1,0 +1,928 @@
+{
+  "version": 4,
+  "terraform_version": "1.5.7",
+  "serial": 99,
+  "lineage": "83aca775-8710-2461-07ad-3a79a0f07a36",
+  "outputs": {},
+  "resources": [
+    {
+      "module": "module.b3_pipeline",
+      "mode": "managed",
+      "type": "aws_s3_bucket_notification",
+      "name": "raw_bucket_notification",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "bucket": "b3-bovespa-raw-data-dev",
+            "eventbridge": false,
+            "id": "b3-bovespa-raw-data-dev",
+            "lambda_function": [
+              {
+                "events": [
+                  "s3:ObjectCreated:*"
+                ],
+                "filter_prefix": "",
+                "filter_suffix": ".parquet",
+                "id": "tf-s3-lambda-20250322125407277700000002",
+                "lambda_function_arn": "arn:aws:lambda:us-east-1:416759445527:function:b3-trigger-glue-job-dev"
+              }
+            ],
+            "queue": [],
+            "topic": []
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.b3_pipeline.module.glue.aws_glue_job.b3_etl",
+            "module.b3_pipeline.module.iam.aws_iam_role.glue_role",
+            "module.b3_pipeline.module.iam.aws_iam_role.lambda_role",
+            "module.b3_pipeline.module.lambda.aws_lambda_function.trigger_glue_job",
+            "module.b3_pipeline.module.lambda.aws_lambda_permission.allow_s3",
+            "module.b3_pipeline.module.lambda.data.archive_file.lambda_zip",
+            "module.b3_pipeline.module.lambda.local_file.lambda_function",
+            "module.b3_pipeline.module.s3.aws_s3_bucket.raw",
+            "module.b3_pipeline.module.s3.aws_s3_bucket.refined"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.glue",
+      "mode": "managed",
+      "type": "aws_glue_catalog_database",
+      "name": "b3_database",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:glue:us-east-1:416759445527:database/b3_bovespa_dev",
+            "catalog_id": "416759445527",
+            "create_table_default_permission": [
+              {
+                "permissions": [
+                  "ALL"
+                ],
+                "principal": [
+                  {
+                    "data_lake_principal_identifier": "IAM_ALLOWED_PRINCIPALS"
+                  }
+                ]
+              }
+            ],
+            "description": "",
+            "federated_database": [],
+            "id": "416759445527:b3_bovespa_dev",
+            "location_uri": "",
+            "name": "b3_bovespa_dev",
+            "parameters": null,
+            "tags": null,
+            "tags_all": {},
+            "target_database": []
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.glue",
+      "mode": "managed",
+      "type": "aws_glue_crawler",
+      "name": "b3_raw_crawler",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:glue:us-east-1:416759445527:crawler/b3-raw-crawler-dev",
+            "catalog_target": [],
+            "classifiers": null,
+            "configuration": "",
+            "database_name": "b3_bovespa_dev",
+            "delta_target": [],
+            "description": "",
+            "dynamodb_target": [],
+            "hudi_target": [],
+            "iceberg_target": [],
+            "id": "b3-raw-crawler-dev",
+            "jdbc_target": [],
+            "lake_formation_configuration": [
+              {
+                "account_id": "",
+                "use_lake_formation_credentials": false
+              }
+            ],
+            "lineage_configuration": [
+              {
+                "crawler_lineage_settings": "DISABLE"
+              }
+            ],
+            "mongodb_target": [],
+            "name": "b3-raw-crawler-dev",
+            "recrawl_policy": [
+              {
+                "recrawl_behavior": "CRAWL_EVERYTHING"
+              }
+            ],
+            "role": "glue-b3-role-dev",
+            "s3_target": [
+              {
+                "connection_name": "",
+                "dlq_event_queue_arn": "",
+                "event_queue_arn": "",
+                "exclusions": null,
+                "path": "s3://b3-bovespa-raw-data-dev",
+                "sample_size": 0
+              }
+            ],
+            "schedule": "",
+            "schema_change_policy": [
+              {
+                "delete_behavior": "LOG",
+                "update_behavior": "UPDATE_IN_DATABASE"
+              }
+            ],
+            "security_configuration": "",
+            "table_prefix": "",
+            "tags": null,
+            "tags_all": {}
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.b3_pipeline.module.glue.aws_glue_catalog_database.b3_database",
+            "module.b3_pipeline.module.iam.aws_iam_role.glue_role",
+            "module.b3_pipeline.module.s3.aws_s3_bucket.raw"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.glue",
+      "mode": "managed",
+      "type": "aws_glue_crawler",
+      "name": "b3_refined_crawler",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:glue:us-east-1:416759445527:crawler/b3-refined-crawler-dev",
+            "catalog_target": [],
+            "classifiers": null,
+            "configuration": "",
+            "database_name": "b3_bovespa_dev",
+            "delta_target": [],
+            "description": "",
+            "dynamodb_target": [],
+            "hudi_target": [],
+            "iceberg_target": [],
+            "id": "b3-refined-crawler-dev",
+            "jdbc_target": [],
+            "lake_formation_configuration": [
+              {
+                "account_id": "",
+                "use_lake_formation_credentials": false
+              }
+            ],
+            "lineage_configuration": [
+              {
+                "crawler_lineage_settings": "DISABLE"
+              }
+            ],
+            "mongodb_target": [],
+            "name": "b3-refined-crawler-dev",
+            "recrawl_policy": [
+              {
+                "recrawl_behavior": "CRAWL_EVERYTHING"
+              }
+            ],
+            "role": "glue-b3-role-dev",
+            "s3_target": [
+              {
+                "connection_name": "",
+                "dlq_event_queue_arn": "",
+                "event_queue_arn": "",
+                "exclusions": null,
+                "path": "s3://b3-bovespa-refined-data-dev",
+                "sample_size": 0
+              }
+            ],
+            "schedule": "",
+            "schema_change_policy": [
+              {
+                "delete_behavior": "LOG",
+                "update_behavior": "UPDATE_IN_DATABASE"
+              }
+            ],
+            "security_configuration": "",
+            "table_prefix": "",
+            "tags": null,
+            "tags_all": {}
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.b3_pipeline.module.glue.aws_glue_catalog_database.b3_database",
+            "module.b3_pipeline.module.iam.aws_iam_role.glue_role",
+            "module.b3_pipeline.module.s3.aws_s3_bucket.refined"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.glue",
+      "mode": "managed",
+      "type": "aws_glue_job",
+      "name": "b3_etl",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:glue:us-east-1:416759445527:job/b3-etl-job-dev",
+            "command": [
+              {
+                "name": "glueetl",
+                "python_version": "3",
+                "runtime": "",
+                "script_location": "s3://b3-bovespa-raw-data-dev/scripts/etl_job.py"
+              }
+            ],
+            "connections": null,
+            "default_arguments": {
+              "--TempDir": "s3://b3-bovespa-raw-data-dev/temporary/",
+              "--enable-continuous-cloudwatch-log": "true",
+              "--enable-job-insights": "true",
+              "--enable-metrics": "true",
+              "--enable-spark-ui": "true",
+              "--job-language": "python",
+              "--raw-bucket": "b3-bovespa-raw-data-dev",
+              "--refined-bucket": "b3-bovespa-refined-data-dev",
+              "--spark-event-logs-path": "s3://b3-bovespa-raw-data-dev/spark-logs/"
+            },
+            "description": "",
+            "execution_class": "",
+            "execution_property": [
+              {
+                "max_concurrent_runs": 1
+              }
+            ],
+            "glue_version": "4.0",
+            "id": "b3-etl-job-dev",
+            "job_run_queuing_enabled": false,
+            "maintenance_window": "",
+            "max_capacity": 2,
+            "max_retries": 0,
+            "name": "b3-etl-job-dev",
+            "non_overridable_arguments": null,
+            "notification_property": [],
+            "number_of_workers": 2,
+            "role_arn": "arn:aws:iam::416759445527:role/glue-b3-role-dev",
+            "security_configuration": "",
+            "tags": null,
+            "tags_all": {},
+            "timeout": 60,
+            "worker_type": "G.1X"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.b3_pipeline.module.iam.aws_iam_role.glue_role",
+            "module.b3_pipeline.module.s3.aws_s3_bucket.raw",
+            "module.b3_pipeline.module.s3.aws_s3_bucket.refined"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.glue",
+      "mode": "managed",
+      "type": "aws_s3_object",
+      "name": "glue_script",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "acl": null,
+            "arn": "arn:aws:s3:::b3-bovespa-raw-data-dev/scripts/etl_job.py",
+            "bucket": "b3-bovespa-raw-data-dev",
+            "bucket_key_enabled": false,
+            "cache_control": "",
+            "checksum_algorithm": null,
+            "checksum_crc32": "",
+            "checksum_crc32c": "",
+            "checksum_crc64nvme": "",
+            "checksum_sha1": "",
+            "checksum_sha256": "",
+            "content": "import sys\nfrom awsglue.transforms import *\nfrom awsglue.utils import getResolvedOptions\nfrom pyspark.context import SparkContext\nfrom awsglue.context import GlueContext\nfrom awsglue.job import Job\nfrom pyspark.sql.functions import *\nfrom datetime import datetime\n\n# Obter argumentos do job\nargs = getResolvedOptions(sys.argv, ['JOB_NAME', 'raw-bucket', 'refined-bucket'])\n\nsc = SparkContext()\nglueContext = GlueContext(sc)\nspark = glueContext.spark_session\njob = Job(glueContext)\njob.init(args['JOB_NAME'], args)\n\n# Ler dados do bucket raw\nraw_bucket = args['raw-bucket']\nrefined_bucket = args['refined-bucket']\n\n# Ler dados do bucket raw\ndf = spark.read.parquet(f\"s3://{raw_bucket}/\")\n\n# Transformações\n# Agrupamento e sumarização\ndf_summary = df.groupBy(\"acao\").agg(\n    count(\"*\").alias(\"total_registros\"),\n    sum(\"volume\").alias(\"volume_total\"),\n    avg(\"preco\").alias(\"preco_medio\")\n)\n\n# Renomear colunas\ndf_summary = df_summary.withColumnRenamed(\"acao\", \"codigo_acao\") \\\n                      .withColumnRenamed(\"volume_total\", \"volume_negociado\")\n\n# Cálculos com datas\ndf_summary = df_summary.withColumn(\"data_processamento\", current_date()) \\\n                      .withColumn(\"hora_processamento\", current_timestamp())\n\n# Salvar no bucket refined\ndf_summary.write.partitionBy(\"data_processamento\", \"codigo_acao\") \\\n    .mode(\"overwrite\") \\\n    .parquet(f\"s3://{refined_bucket}/\")\n\njob.commit()\n",
+            "content_base64": null,
+            "content_disposition": "",
+            "content_encoding": "",
+            "content_language": "",
+            "content_type": "application/octet-stream",
+            "etag": "ea60c009707fdf420eebdac5d2a70c31",
+            "force_destroy": false,
+            "id": "scripts/etl_job.py",
+            "key": "scripts/etl_job.py",
+            "kms_key_id": null,
+            "metadata": null,
+            "object_lock_legal_hold_status": "",
+            "object_lock_mode": "",
+            "object_lock_retain_until_date": "",
+            "override_provider": [],
+            "server_side_encryption": "AES256",
+            "source": null,
+            "source_hash": null,
+            "storage_class": "STANDARD",
+            "tags": null,
+            "tags_all": {},
+            "version_id": "",
+            "website_redirect": ""
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.b3_pipeline.module.s3.aws_s3_bucket.raw"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.iam",
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "glue_role",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:iam::416759445527:role/glue-b3-role-dev",
+            "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"glue.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+            "create_date": "2025-03-22T12:53:52Z",
+            "description": "",
+            "force_detach_policies": false,
+            "id": "glue-b3-role-dev",
+            "inline_policy": [],
+            "managed_policy_arns": [],
+            "max_session_duration": 3600,
+            "name": "glue-b3-role-dev",
+            "name_prefix": "",
+            "path": "/",
+            "permissions_boundary": "",
+            "tags": null,
+            "tags_all": {},
+            "unique_id": "AROAWCCGMPALVSJTXC5HM"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.iam",
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "lambda_role",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:iam::416759445527:role/lambda-b3-role-dev",
+            "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+            "create_date": "2025-03-22T12:53:52Z",
+            "description": "",
+            "force_detach_policies": false,
+            "id": "lambda-b3-role-dev",
+            "inline_policy": [],
+            "managed_policy_arns": [],
+            "max_session_duration": 3600,
+            "name": "lambda-b3-role-dev",
+            "name_prefix": "",
+            "path": "/",
+            "permissions_boundary": "",
+            "tags": null,
+            "tags_all": {},
+            "unique_id": "AROAWCCGMPALRFOKRO6AP"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.iam",
+      "mode": "managed",
+      "type": "aws_iam_role_policy",
+      "name": "glue_policy",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "glue-b3-role-dev:glue-b3-policy-dev",
+            "name": "glue-b3-policy-dev",
+            "name_prefix": "",
+            "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":[\"s3:GetObject\",\"s3:PutObject\",\"s3:DeleteObject\",\"s3:ListBucket\",\"glue:*\",\"logs:CreateLogGroup\",\"logs:CreateLogStream\",\"logs:PutLogEvents\"],\"Effect\":\"Allow\",\"Resource\":[\"arn:aws:s3:::b3-bovespa-raw-data-dev/*\",\"arn:aws:s3:::b3-bovespa-raw-data-dev\",\"arn:aws:s3:::b3-bovespa-refined-data-dev/*\",\"arn:aws:s3:::b3-bovespa-refined-data-dev\",\"arn:aws:glue:*:*:*\",\"arn:aws:logs:*:*:*\"]}]}",
+            "role": "glue-b3-role-dev"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.b3_pipeline.module.iam.aws_iam_role.glue_role",
+            "module.b3_pipeline.module.s3.aws_s3_bucket.raw",
+            "module.b3_pipeline.module.s3.aws_s3_bucket.refined"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.iam",
+      "mode": "managed",
+      "type": "aws_iam_role_policy",
+      "name": "lambda_policy",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "lambda-b3-role-dev:lambda-b3-policy-dev",
+            "name": "lambda-b3-policy-dev",
+            "name_prefix": "",
+            "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":[\"s3:GetObject\",\"s3:ListBucket\",\"glue:StartJobRun\",\"logs:CreateLogGroup\",\"logs:CreateLogStream\",\"logs:PutLogEvents\"],\"Effect\":\"Allow\",\"Resource\":[\"arn:aws:s3:::b3-bovespa-raw-data-dev/*\",\"arn:aws:s3:::b3-bovespa-raw-data-dev\",\"arn:aws:glue:*:*:job/*\",\"arn:aws:logs:*:*:*\"]}]}",
+            "role": "lambda-b3-role-dev"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.b3_pipeline.module.iam.aws_iam_role.lambda_role",
+            "module.b3_pipeline.module.s3.aws_s3_bucket.raw"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.iam",
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "glue_service",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "glue-b3-role-dev-20250322125353192600000001",
+            "policy_arn": "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole",
+            "role": "glue-b3-role-dev"
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.b3_pipeline.module.iam.aws_iam_role.glue_role"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.lambda",
+      "mode": "data",
+      "type": "archive_file",
+      "name": "lambda_zip",
+      "provider": "provider[\"registry.terraform.io/hashicorp/archive\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "exclude_symlink_directories": null,
+            "excludes": null,
+            "id": "5fa786dd1469772c663a2e4e14495a457c47c67a",
+            "output_base64sha256": "dZvyhhMhoWYBcetILPHEABU6Tr3nD2l6WEor50WGivs=",
+            "output_base64sha512": "PeXng+2/8/TVJxd1hLvyMHyxOvp6LchUxwOWaFh9T4y1UshA6R7zIg32fmHgCQf5bCE02Mj3ZSdqj1XzDU6IfA==",
+            "output_file_mode": null,
+            "output_md5": "e6f1d0766ae8c5a0793d6f684eb3b2e3",
+            "output_path": "../../modules/lambda/lambda_function.zip",
+            "output_sha": "5fa786dd1469772c663a2e4e14495a457c47c67a",
+            "output_sha256": "759bf2861321a1660171eb482cf1c400153a4ebde70f697a584a2be745868afb",
+            "output_sha512": "3de5e783edbff3f4d527177584bbf2307cb13afa7a2dc854c7039668587d4f8cb552c840e91ef3220df67e61e00907f96c2134d8c8f765276a8f55f30d4e887c",
+            "output_size": 383,
+            "source": [],
+            "source_content": null,
+            "source_content_filename": null,
+            "source_dir": null,
+            "source_file": "../../modules/lambda/lambda_function.py",
+            "type": "zip"
+          },
+          "sensitive_attributes": []
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.lambda",
+      "mode": "managed",
+      "type": "aws_lambda_function",
+      "name": "trigger_glue_job",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "architectures": [
+              "x86_64"
+            ],
+            "arn": "arn:aws:lambda:us-east-1:416759445527:function:b3-trigger-glue-job-dev",
+            "code_sha256": "dZvyhhMhoWYBcetILPHEABU6Tr3nD2l6WEor50WGivs=",
+            "code_signing_config_arn": "",
+            "dead_letter_config": [],
+            "description": "",
+            "environment": [
+              {
+                "variables": {
+                  "GLUE_JOB_NAME": "b3-etl-job-dev"
+                }
+              }
+            ],
+            "ephemeral_storage": [
+              {
+                "size": 512
+              }
+            ],
+            "file_system_config": [],
+            "filename": "../../modules/lambda/lambda_function.zip",
+            "function_name": "b3-trigger-glue-job-dev",
+            "handler": "index.handler",
+            "id": "b3-trigger-glue-job-dev",
+            "image_config": [],
+            "image_uri": "",
+            "invoke_arn": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:416759445527:function:b3-trigger-glue-job-dev/invocations",
+            "kms_key_arn": "",
+            "last_modified": "2025-03-22T12:54:00.687+0000",
+            "layers": null,
+            "logging_config": [
+              {
+                "application_log_level": "",
+                "log_format": "Text",
+                "log_group": "/aws/lambda/b3-trigger-glue-job-dev",
+                "system_log_level": ""
+              }
+            ],
+            "memory_size": 128,
+            "package_type": "Zip",
+            "publish": false,
+            "qualified_arn": "arn:aws:lambda:us-east-1:416759445527:function:b3-trigger-glue-job-dev:$LATEST",
+            "qualified_invoke_arn": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:416759445527:function:b3-trigger-glue-job-dev:$LATEST/invocations",
+            "replace_security_groups_on_destroy": null,
+            "replacement_security_group_ids": null,
+            "reserved_concurrent_executions": -1,
+            "role": "arn:aws:iam::416759445527:role/lambda-b3-role-dev",
+            "runtime": "python3.9",
+            "s3_bucket": null,
+            "s3_key": null,
+            "s3_object_version": null,
+            "signing_job_arn": "",
+            "signing_profile_version_arn": "",
+            "skip_destroy": false,
+            "snap_start": [],
+            "source_code_hash": "",
+            "source_code_size": 383,
+            "tags": null,
+            "tags_all": {},
+            "timeout": 30,
+            "timeouts": null,
+            "tracing_config": [
+              {
+                "mode": "PassThrough"
+              }
+            ],
+            "version": "$LATEST",
+            "vpc_config": []
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6NjAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "module.b3_pipeline.module.glue.aws_glue_job.b3_etl",
+            "module.b3_pipeline.module.iam.aws_iam_role.glue_role",
+            "module.b3_pipeline.module.iam.aws_iam_role.lambda_role",
+            "module.b3_pipeline.module.s3.aws_s3_bucket.raw",
+            "module.b3_pipeline.module.s3.aws_s3_bucket.refined"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.lambda",
+      "mode": "managed",
+      "type": "aws_lambda_permission",
+      "name": "allow_s3",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "action": "lambda:InvokeFunction",
+            "event_source_token": null,
+            "function_name": "b3-trigger-glue-job-dev",
+            "function_url_auth_type": null,
+            "id": "AllowS3Invoke",
+            "principal": "s3.amazonaws.com",
+            "principal_org_id": null,
+            "qualifier": "",
+            "source_account": null,
+            "source_arn": "arn:aws:s3:::b3-bovespa-raw-data-dev",
+            "statement_id": "AllowS3Invoke",
+            "statement_id_prefix": ""
+          },
+          "sensitive_attributes": [],
+          "private": "bnVsbA==",
+          "dependencies": [
+            "module.b3_pipeline.module.glue.aws_glue_job.b3_etl",
+            "module.b3_pipeline.module.iam.aws_iam_role.glue_role",
+            "module.b3_pipeline.module.iam.aws_iam_role.lambda_role",
+            "module.b3_pipeline.module.lambda.aws_lambda_function.trigger_glue_job",
+            "module.b3_pipeline.module.s3.aws_s3_bucket.raw",
+            "module.b3_pipeline.module.s3.aws_s3_bucket.refined"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.lambda",
+      "mode": "managed",
+      "type": "local_file",
+      "name": "lambda_function",
+      "provider": "provider[\"registry.terraform.io/hashicorp/local\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "content": "import os\nimport boto3\n\ndef handler(event, context):\n    glue = boto3.client('glue')\n    \n    # Iniciar o job Glue\n    response = glue.start_job_run(\n        JobName=os.environ['GLUE_JOB_NAME']\n    )\n    \n    return {\n        'statusCode': 200,\n        'body': f\"Glue job iniciado com sucesso. JobRunId: {response['JobRunId']}\"\n    }\n",
+            "content_base64": null,
+            "content_base64sha256": "36dF1QgIhRGxWXHL4mYiQAYB4+3WL/aeS6ifpma2zXk=",
+            "content_base64sha512": "Nc0KitjgbvD21H8B6Uq7tth1L6lxVL+9ulmVVwyFUbk1h7WSnXcTHJCLpSYzuHcfRiW7mHpz+6bql7O3YT7X2A==",
+            "content_md5": "20a03ec9aca76cd42d99f5e869bff76c",
+            "content_sha1": "285699ff04ffd827e3772598eb80c4c00fa0c2ad",
+            "content_sha256": "dfa745d508088511b15971cbe26622400601e3edd62ff69e4ba89fa666b6cd79",
+            "content_sha512": "35cd0a8ad8e06ef0f6d47f01e94abbb6d8752fa97154bfbdba5995570c8551b93587b5929d77131c908ba52633b8771f4625bb987a73fba6ea97b3b7613ed7d8",
+            "directory_permission": "0777",
+            "file_permission": "0777",
+            "filename": "../../modules/lambda/lambda_function.py",
+            "id": "285699ff04ffd827e3772598eb80c4c00fa0c2ad",
+            "sensitive_content": null,
+            "source": null
+          },
+          "sensitive_attributes": []
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.s3",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "raw",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "acceleration_status": "",
+            "acl": null,
+            "arn": "arn:aws:s3:::b3-bovespa-raw-data-dev",
+            "bucket": "b3-bovespa-raw-data-dev",
+            "bucket_domain_name": "b3-bovespa-raw-data-dev.s3.amazonaws.com",
+            "bucket_prefix": "",
+            "bucket_regional_domain_name": "b3-bovespa-raw-data-dev.s3.us-east-1.amazonaws.com",
+            "cors_rule": [],
+            "force_destroy": false,
+            "grant": [
+              {
+                "id": "815adee63aa8f29725272a9198bf887663650614b07c4c1b52c64d18ad209fa9",
+                "permissions": [
+                  "FULL_CONTROL"
+                ],
+                "type": "CanonicalUser",
+                "uri": ""
+              }
+            ],
+            "hosted_zone_id": "Z3AQBSTGFYJSTF",
+            "id": "b3-bovespa-raw-data-dev",
+            "lifecycle_rule": [],
+            "logging": [],
+            "object_lock_configuration": [],
+            "object_lock_enabled": false,
+            "policy": "",
+            "region": "us-east-1",
+            "replication_configuration": [],
+            "request_payer": "BucketOwner",
+            "server_side_encryption_configuration": [
+              {
+                "rule": [
+                  {
+                    "apply_server_side_encryption_by_default": [
+                      {
+                        "kms_master_key_id": "",
+                        "sse_algorithm": "AES256"
+                      }
+                    ],
+                    "bucket_key_enabled": false
+                  }
+                ]
+              }
+            ],
+            "tags": null,
+            "tags_all": {},
+            "timeouts": null,
+            "versioning": [
+              {
+                "enabled": false,
+                "mfa_delete": false
+              }
+            ],
+            "website": [],
+            "website_domain": null,
+            "website_endpoint": null
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjM2MDAwMDAwMDAwMDAsInJlYWQiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19"
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.s3",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "refined",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "acceleration_status": "",
+            "acl": null,
+            "arn": "arn:aws:s3:::b3-bovespa-refined-data-dev",
+            "bucket": "b3-bovespa-refined-data-dev",
+            "bucket_domain_name": "b3-bovespa-refined-data-dev.s3.amazonaws.com",
+            "bucket_prefix": "",
+            "bucket_regional_domain_name": "b3-bovespa-refined-data-dev.s3.us-east-1.amazonaws.com",
+            "cors_rule": [],
+            "force_destroy": false,
+            "grant": [
+              {
+                "id": "815adee63aa8f29725272a9198bf887663650614b07c4c1b52c64d18ad209fa9",
+                "permissions": [
+                  "FULL_CONTROL"
+                ],
+                "type": "CanonicalUser",
+                "uri": ""
+              }
+            ],
+            "hosted_zone_id": "Z3AQBSTGFYJSTF",
+            "id": "b3-bovespa-refined-data-dev",
+            "lifecycle_rule": [],
+            "logging": [],
+            "object_lock_configuration": [],
+            "object_lock_enabled": false,
+            "policy": "",
+            "region": "us-east-1",
+            "replication_configuration": [],
+            "request_payer": "BucketOwner",
+            "server_side_encryption_configuration": [
+              {
+                "rule": [
+                  {
+                    "apply_server_side_encryption_by_default": [
+                      {
+                        "kms_master_key_id": "",
+                        "sse_algorithm": "AES256"
+                      }
+                    ],
+                    "bucket_key_enabled": false
+                  }
+                ]
+              }
+            ],
+            "tags": null,
+            "tags_all": {},
+            "timeouts": null,
+            "versioning": [
+              {
+                "enabled": false,
+                "mfa_delete": false
+              }
+            ],
+            "website": [],
+            "website_domain": null,
+            "website_endpoint": null
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjM2MDAwMDAwMDAwMDAsInJlYWQiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19"
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.s3",
+      "mode": "managed",
+      "type": "aws_s3_bucket_lifecycle_configuration",
+      "name": "raw_lifecycle",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "bucket": "b3-bovespa-raw-data-dev",
+            "expected_bucket_owner": "",
+            "id": "b3-bovespa-raw-data-dev",
+            "rule": [
+              {
+                "abort_incomplete_multipart_upload": [],
+                "expiration": [],
+                "filter": [
+                  {
+                    "and": [],
+                    "object_size_greater_than": null,
+                    "object_size_less_than": null,
+                    "prefix": "",
+                    "tag": []
+                  }
+                ],
+                "id": "transition_to_ia",
+                "noncurrent_version_expiration": [],
+                "noncurrent_version_transition": [],
+                "prefix": "",
+                "status": "Enabled",
+                "transition": [
+                  {
+                    "date": null,
+                    "days": 90,
+                    "storage_class": "STANDARD_IA"
+                  }
+                ]
+              }
+            ],
+            "timeouts": null,
+            "transition_default_minimum_object_size": "all_storage_classes_128K"
+          },
+          "sensitive_attributes": [],
+          "dependencies": [
+            "module.b3_pipeline.module.s3.aws_s3_bucket.raw"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.b3_pipeline.module.s3",
+      "mode": "managed",
+      "type": "aws_s3_bucket_lifecycle_configuration",
+      "name": "refined_lifecycle",
+      "provider": "module.b3_pipeline.provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "bucket": "b3-bovespa-refined-data-dev",
+            "expected_bucket_owner": "",
+            "id": "b3-bovespa-refined-data-dev",
+            "rule": [
+              {
+                "abort_incomplete_multipart_upload": [],
+                "expiration": [],
+                "filter": [
+                  {
+                    "and": [],
+                    "object_size_greater_than": null,
+                    "object_size_less_than": null,
+                    "prefix": "",
+                    "tag": []
+                  }
+                ],
+                "id": "transition_to_ia",
+                "noncurrent_version_expiration": [],
+                "noncurrent_version_transition": [],
+                "prefix": "",
+                "status": "Enabled",
+                "transition": [
+                  {
+                    "date": null,
+                    "days": 90,
+                    "storage_class": "STANDARD_IA"
+                  }
+                ]
+              }
+            ],
+            "timeouts": null,
+            "transition_default_minimum_object_size": "all_storage_classes_128K"
+          },
+          "sensitive_attributes": [],
+          "dependencies": [
+            "module.b3_pipeline.module.s3.aws_s3_bucket.refined"
+          ]
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
