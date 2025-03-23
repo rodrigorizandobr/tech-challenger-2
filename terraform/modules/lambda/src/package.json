@@ -1,0 +1,19 @@
+{
+  "name": "b3-crawler",
+  "version": "1.0.0",
+  "description": "Crawler para dados da B3",
+  "main": "crawler.js",
+  "scripts": {
+    "test": "node crawler-local.js",
+    "prepare": "PUPPETEER_SKIP_DOWNLOAD=true"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "^121.0.0",
+    "puppeteer-core": "^21.5.0",
+    "parquetjs": "^0.11.2",
+    "aws-sdk": "^2.1502.0"
+  },
+  "devDependencies": {
+    "puppeteer": "^22.8.2"
+  }
+}
