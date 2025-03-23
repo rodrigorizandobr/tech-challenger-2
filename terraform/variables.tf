@@ -13,7 +13,7 @@ variable "environment" {
 variable "bucket_name" {
   description = "Nome do bucket S3 para armazenar os dados"
   type        = string
-  default     = "bovespa-pipeline-data-dev"
+  default     = "bovespa-pipeline-data"
 }
 
 # Variáveis locais para uso interno
