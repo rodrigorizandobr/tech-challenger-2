@@ -17,27 +17,50 @@ spark = glueContext.spark_session
 job = Job(glueContext)
 job.init(args['JOB_NAME'], args)
 
-# Criar cliente do Glue
+# Criar cliente do Glue e S3
 glue_client = boto3.client('glue')
+s3_client = boto3.client('s3')
 
-# Criar o banco de dados se não existir
+# Configurações
 database_name = 'bovespa_db_dev'
+table_name = 'bovespa_composicao_ibov'
+bucket_name = args['bucket_name']
+
+# Extrair data atual para particionamento
+current_date = datetime.now()
+year = current_date.strftime("%Y")
+month = current_date.strftime("%m")
+day = current_date.strftime("%d")
+
+# Verificar se já existem dados para essa partição (ano/mês/dia)
+partition_prefix = f"refined/year={year}/month={month}/day={day}/"
+print(f"Verificando partição existente: s3://{bucket_name}/{partition_prefix}")
+
+# Listar objetos na partição específica
 try:
-    glue_client.create_database(
-        DatabaseInput={
-            'Name': database_name,
-            'Description': 'Banco de dados para armazenar dados do Bovespa'
-        }
+    response = s3_client.list_objects_v2(
+        Bucket=bucket_name,
+        Prefix=partition_prefix,
+        MaxKeys=1
     )
-    print(f"Banco de dados '{database_name}' criado com sucesso.")
-except glue_client.exceptions.AlreadyExistsException:
-    print(f"O banco de dados '{database_name}' já existe.")
+    
+    # Se já existem objetos nesta partição, não processa novamente
+    if 'Contents' in response and len(response['Contents']) > 0:
+        print(f"Partição {partition_prefix} já existe com {len(response['Contents'])} objetos.")
+        print("Dados já foram refinados para esta data. Ignorando processamento para evitar duplicação.")
+        job.commit()
+        sys.exit(0)
+    else:
+        print(f"Partição {partition_prefix} não existe. Prosseguindo com o refinamento.")
+except Exception as e:
+    print(f"Erro ao verificar partição: {e}")
+    print("Continuando com o processamento por precaução.")
 
 # Leitura dos dados do S3 em formato Parquet
 datasource = glueContext.create_dynamic_frame.from_options(
     "s3",
     {
-        "paths": [f"s3://{args['bucket_name']}/raw/"],
+        "paths": [f"s3://{bucket_name}/raw/"],
         "recurse": True,
         "groupFiles": "inPartition",
         "groupSize": "1048576"
@@ -54,12 +77,6 @@ df.printSchema()
 print("\nNúmero de linhas:", df.count())
 print("\nAmostra dos dados:")
 df.show(5, truncate=False)
-
-# Extrair data atual para particionamento
-current_date = datetime.now()
-year = current_date.strftime("%Y")
-month = current_date.strftime("%m")
-day = current_date.strftime("%d")
 
 # Primeiro, vamos verificar os nomes das colunas existentes
 print("\nColunas disponíveis:")
@@ -109,26 +126,34 @@ except Exception as e:
         print(f"Usando colunas exatamente como estão: {column_names}")
         df_final = df_partitioned
 
+# Verificar se temos dados para processar
+if df_final.count() == 0:
+    print("Nenhum dado novo para processar. Finalizando job.")
+    job.commit()
+    sys.exit(0)
+
 # Converter para DynamicFrame para usar recursos do Glue
 dynamic_frame_write = DynamicFrame.fromDF(df_final, glueContext, "dynamic_frame_write")
 
-# Escrever os dados particionados e catalogar no Glue Catalog
+# Configuração para criar tabela no Data Catalog e manter esquema em execuções subsequentes
 sink = glueContext.getSink(
     connection_type="s3",
-    path=f"s3://{args['bucket_name']}/refined/",
+    path=f"s3://{bucket_name}/refined/",
     enableUpdateCatalog=True,
+    updateBehavior="UPDATE_IN_DATABASE",
     partitionKeys=["year", "month", "day"],
     transformation_ctx="write_refined"
 )
 
-# Configurar o catálogo
+# Configurar o formato e informações do catálogo
 sink.setFormat("glueparquet")
 sink.setCatalogInfo(
-    catalogDatabase="bovespa_db_dev",
-    catalogTableName="bovespa_composicao_ibov"
+    catalogDatabase=database_name,
+    catalogTableName=table_name
 )
 
 # Escrever os dados
 sink.writeFrame(dynamic_frame_write)
+print(f"Dados refinados salvos com sucesso na partição: {partition_prefix}")
 
 job.commit() 
