@@ -40,4 +40,5 @@ module "athena" {
   source = "./modules/athena"
   environment = var.environment
   glue_database_name = module.glue.glue_database_name
+  bucket_name = module.s3.bucket_name
 }

@@ -1,119 +1,32 @@
 {
   "version": 4,
   "terraform_version": "1.5.7",
-  "serial": 193,
+  "serial": 107,
   "lineage": "e780a6d2-d15f-697d-97df-b9ead4ab4089",
   "outputs": {},
   "resources": [
     {
       "module": "module.athena",
       "mode": "managed",
-      "type": "aws_athena_named_query",
-      "name": "media_preco",
+      "type": "aws_athena_database",
+      "name": "bovespa_db",
       "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
       "instances": [
         {
           "schema_version": 0,
           "attributes": {
-            "database": "bovespa_db_dev",
-            "description": "Média de preço por ticker",
-            "id": "bd52ed73-6886-4e66-b333-a50829611631",
-            "name": "bovespa-media-preco-dev",
-            "query": "SELECT ticker, \n       AVG(preco_medio_abertura) as preco_medio\nFROM bovespa_db_dev.bovespa_refined\nGROUP BY ticker\nORDER BY preco_medio DESC\nLIMIT 10;\n",
-            "workgroup": "bovespa-workgroup-dev"
+            "acl_configuration": [],
+            "bucket": null,
+            "comment": "",
+            "encryption_configuration": [],
+            "expected_bucket_owner": null,
+            "force_destroy": null,
+            "id": "bovespa_db_dev",
+            "name": "bovespa_db_dev",
+            "properties": {}
           },
           "sensitive_attributes": [],
-          "private": "bnVsbA==",
-          "dependencies": [
-            "module.athena.aws_athena_workgroup.bovespa",
-            "module.athena.aws_s3_bucket.athena_results",
-            "module.athena.random_id.bucket_suffix",
-            "module.glue.aws_glue_catalog_database.bovespa_db"
-          ]
-        }
-      ]
-    },
-    {
-      "module": "module.athena",
-      "mode": "managed",
-      "type": "aws_athena_named_query",
-      "name": "negociacoes",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 0,
-          "attributes": {
-            "database": "bovespa_db_dev",
-            "description": "Número de negociações por ticker e dia",
-            "id": "bf06e17c-d568-4bad-a071-5c557e95df37",
-            "name": "bovespa-negociacoes-dev",
-            "query": "SELECT ticker, \n       data_pregao, \n       numero_negociacoes\nFROM bovespa_db_dev.bovespa_refined\nORDER BY numero_negociacoes DESC\nLIMIT 10;\n",
-            "workgroup": "bovespa-workgroup-dev"
-          },
-          "sensitive_attributes": [],
-          "private": "bnVsbA==",
-          "dependencies": [
-            "module.athena.aws_athena_workgroup.bovespa",
-            "module.athena.aws_s3_bucket.athena_results",
-            "module.athena.random_id.bucket_suffix",
-            "module.glue.aws_glue_catalog_database.bovespa_db"
-          ]
-        }
-      ]
-    },
-    {
-      "module": "module.athena",
-      "mode": "managed",
-      "type": "aws_athena_named_query",
-      "name": "schema",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 0,
-          "attributes": {
-            "database": "bovespa_db_dev",
-            "description": "Visualizar schema da tabela",
-            "id": "e5751dd6-cf2a-441e-8621-a508559751d1",
-            "name": "bovespa-schema-dev",
-            "query": "DESCRIBE bovespa_db_dev.bovespa_refined;",
-            "workgroup": "bovespa-workgroup-dev"
-          },
-          "sensitive_attributes": [],
-          "private": "bnVsbA==",
-          "dependencies": [
-            "module.athena.aws_athena_workgroup.bovespa",
-            "module.athena.aws_s3_bucket.athena_results",
-            "module.athena.random_id.bucket_suffix",
-            "module.glue.aws_glue_catalog_database.bovespa_db"
-          ]
-        }
-      ]
-    },
-    {
-      "module": "module.athena",
-      "mode": "managed",
-      "type": "aws_athena_named_query",
-      "name": "volume_diario",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 0,
-          "attributes": {
-            "database": "bovespa_db_dev",
-            "description": "Volume total negociado por dia",
-            "id": "04d30457-39b3-4145-a8af-b926c5b4b93d",
-            "name": "bovespa-volume-diario-dev",
-            "query": "SELECT data_pregao, \n       SUM(volume_total) as volume_total_dia\nFROM bovespa_db_dev.bovespa_refined\nGROUP BY data_pregao\nORDER BY data_pregao DESC\nLIMIT 10;\n",
-            "workgroup": "bovespa-workgroup-dev"
-          },
-          "sensitive_attributes": [],
-          "private": "bnVsbA==",
-          "dependencies": [
-            "module.athena.aws_athena_workgroup.bovespa",
-            "module.athena.aws_s3_bucket.athena_results",
-            "module.athena.random_id.bucket_suffix",
-            "module.glue.aws_glue_catalog_database.bovespa_db"
-          ]
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjAifQ=="
         }
       ]
     },
@@ -121,7 +34,7 @@
       "module": "module.athena",
       "mode": "managed",
       "type": "aws_athena_workgroup",
-      "name": "bovespa",
+      "name": "bovespa_workgroup",
       "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
       "instances": [
         {
@@ -146,7 +59,7 @@
                     "acl_configuration": [],
                     "encryption_configuration": [],
                     "expected_bucket_owner": "",
-                    "output_location": "s3://athena-results-bovespa-dev-7933a2de/output/"
+                    "output_location": "s3://bovespa-pipeline-data/athena-results/"
                   }
                 ]
               }
@@ -167,8 +80,7 @@
           "sensitive_attributes": [],
           "private": "bnVsbA==",
           "dependencies": [
-            "module.athena.aws_s3_bucket.athena_results",
-            "module.athena.random_id.bucket_suffix"
+            "module.s3.aws_s3_bucket.bovespa_data"
           ]
         }
       ]
@@ -227,15 +139,10 @@
                 ]
               }
             ],
-            "tags": {
-              "Environment": "dev",
-              "Name": "Bucket para resultados do Athena",
-              "Project": "bovespa-pipeline"
-            },
+            "tags": null,
             "tags_all": {
               "Environment": "dev",
               "ManagedBy": "terraform",
-              "Name": "Bucket para resultados do Athena",
               "Owner": "fiap-pos-tech",
               "Project": "bovespa-pipeline"
             },
@@ -257,22 +164,6 @@
           ]
         }
       ]
-    },
-    {
-      "module": "module.athena",
-      "mode": "managed",
-      "type": "null_resource",
-      "name": "create_table",
-      "provider": "provider[\"registry.terraform.io/hashicorp/null\"]",
-      "instances": []
-    },
-    {
-      "module": "module.athena",
-      "mode": "managed",
-      "type": "null_resource",
-      "name": "repair_partitions",
-      "provider": "provider[\"registry.terraform.io/hashicorp/null\"]",
-      "instances": []
     },
     {
       "module": "module.athena",
@@ -655,7 +546,7 @@
           "attributes": {
             "arn": "arn:aws:iam::416759445527:role/glue-bovespa-role-dev",
             "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"glue.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
-            "create_date": "2025-03-23T18:08:33Z",
+            "create_date": "2025-03-23T17:27:40Z",
             "description": "",
             "force_detach_policies": false,
             "id": "glue-bovespa-role-dev",
@@ -673,7 +564,7 @@
               "Owner": "fiap-pos-tech",
               "Project": "bovespa-pipeline"
             },
-            "unique_id": "AROAWCCGMPAL76HKQ5P5N"
+            "unique_id": "AROAWCCGMPAL6V56VXCGS"
           },
           "sensitive_attributes": [],
           "private": "bnVsbA=="
@@ -732,7 +623,7 @@
             "content_encoding": "",
             "content_language": "",
             "content_type": "application/octet-stream",
-            "etag": "03e8d73ad2d93a8ec0df8970c34f62e4",
+            "etag": "d962a7ade8640775fe0770b328f83fcf",
             "force_destroy": true,
             "id": "scripts/transform_bovespa.py",
             "key": "scripts/transform_bovespa.py",
@@ -753,7 +644,7 @@
               "Owner": "fiap-pos-tech",
               "Project": "bovespa-pipeline"
             },
-            "version_id": "btv76cPAXJFeZpUQEkqZshT4Ryz1LBGs",
+            "version_id": "o22ntETcd41JyH0P8nNqddY6ITrYjm6_",
             "website_redirect": ""
           },
           "sensitive_attributes": [],
@@ -776,16 +667,16 @@
           "attributes": {
             "exclude_symlink_directories": null,
             "excludes": null,
-            "id": "535efbb33a321d6682ea02ca8a868aebbf8b6b62",
-            "output_base64sha256": "mjGneaHh/eJybUFgIY1Ky5s4DQFjcoPV5XeEU/kRfnY=",
-            "output_base64sha512": "DDLSEaiXQRbo+f/dWFgKS0hTKl//COvMoOVdM0QxyVXDmRQpGkp2As5VYk+Ud7R9XLjbJOWkzuf3O9L9zoZd4A==",
+            "id": "14cf8dac0ad145d2933d7cee44982d814802297c",
+            "output_base64sha256": "Fm+I1mdUhk9CoM4LpbnRxsd++EPUFD2ABhpvwOItxKE=",
+            "output_base64sha512": "wLLww5MDpx6t6vSxMTD7trOeqke00ThlwfRcgxfNPbg6azSttWxz0TEtAe+eIvxzamtF0i5ATMSuyfaTReuF6Q==",
             "output_file_mode": null,
-            "output_md5": "69bbf1e0b2e88c42450ae67d048bbed9",
+            "output_md5": "120ec1c11ea35f37a441607f1ab1f96e",
             "output_path": "modules/lambda/crawler_hash.zip",
-            "output_sha": "535efbb33a321d6682ea02ca8a868aebbf8b6b62",
-            "output_sha256": "9a31a779a1e1fde2726d4160218d4acb9b380d01637283d5e5778453f9117e76",
-            "output_sha512": "0c32d211a8974116e8f9ffdd58580a4b48532a5fff08ebcca0e55d334431c955c39914291a4a7602ce55624f9477b47d5cb8db24e5a4cee7f73bd2fdce865de0",
-            "output_size": 84073318,
+            "output_sha": "14cf8dac0ad145d2933d7cee44982d814802297c",
+            "output_sha256": "166f88d66754864f42a0ce0ba5b9d1c6c77ef843d4143d80061a6fc0e22dc4a1",
+            "output_sha512": "c0b2f0c39303a71eadeaf4b13130fbb6b39eaa47b4d13865c1f45c8317cd3db83a6b34adb56c73d1312d01ef9e22fc736a6b45d22e404cc4aec9f69345eb85e9",
+            "output_size": 84073319,
             "source": [],
             "source_content": null,
             "source_content_filename": null,
@@ -813,19 +704,13 @@
             "log_group_class": "STANDARD",
             "name": "/aws/lambda/b3-crawler-dev",
             "name_prefix": "",
-            "retention_in_days": 14,
+            "retention_in_days": 0,
             "skip_destroy": false,
-            "tags": null,
-            "tags_all": {
-              "Environment": "dev",
-              "ManagedBy": "terraform",
-              "Owner": "fiap-pos-tech",
-              "Project": "bovespa-pipeline"
-            }
+            "tags": {},
+            "tags_all": {}
           },
           "sensitive_attributes": [],
-          "private": "bnVsbA==",
-          "create_before_destroy": true
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjAifQ=="
         }
       ]
     },
@@ -841,7 +726,7 @@
           "attributes": {
             "arn": "arn:aws:iam::416759445527:role/b3-crawler-role-dev",
             "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
-            "create_date": "2025-03-23T18:08:33Z",
+            "create_date": "2025-03-23T17:27:40Z",
             "description": "",
             "force_detach_policies": false,
             "id": "b3-crawler-role-dev",
@@ -859,7 +744,7 @@
               "Owner": "fiap-pos-tech",
               "Project": "bovespa-pipeline"
             },
-            "unique_id": "AROAWCCGMPAL4ZXF45QMH"
+            "unique_id": "AROAWCCGMPAL7ZYBGTWWJ"
           },
           "sensitive_attributes": [],
           "private": "bnVsbA=="
@@ -906,7 +791,7 @@
               "x86_64"
             ],
             "arn": "arn:aws:lambda:us-east-1:416759445527:function:b3-crawler-dev",
-            "code_sha256": "6RWSPKy7P12jBJ6XjNiUILVTQi0Z8KSpJaF5m/xDQIM=",
+            "code_sha256": "whzTPfabilmM+AxBoVXQtzqedjm4uBtA87xG8uBE6PQ=",
             "code_signing_config_arn": "",
             "dead_letter_config": [],
             "description": "",
@@ -932,7 +817,7 @@
             "image_uri": "",
             "invoke_arn": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:416759445527:function:b3-crawler-dev/invocations",
             "kms_key_arn": "",
-            "last_modified": "2025-03-23T18:09:29.656+0000",
+            "last_modified": "2025-03-23T17:28:36.314+0000",
             "layers": null,
             "logging_config": [
               {
@@ -959,8 +844,8 @@
             "signing_profile_version_arn": "",
             "skip_destroy": false,
             "snap_start": [],
-            "source_code_hash": "mjGneaHh/eJybUFgIY1Ky5s4DQFjcoPV5XeEU/kRfnY=",
-            "source_code_size": 85288971,
+            "source_code_hash": "Fm+I1mdUhk9CoM4LpbnRxsd++EPUFD2ABhpvwOItxKE=",
+            "source_code_size": 85288928,
             "tags": null,
             "tags_all": {
               "Environment": "dev",
@@ -1018,7 +903,7 @@
             "content_encoding": "",
             "content_language": "",
             "content_type": "binary/octet-stream",
-            "etag": "1702c695ecccb708286f676298de6ed6-17",
+            "etag": "aa8a16007cb7c255135d9a1b556e1473-17",
             "force_destroy": false,
             "id": "scripts/crawler.zip",
             "key": "scripts/crawler.zip",
@@ -1030,7 +915,7 @@
             "override_provider": [],
             "server_side_encryption": "AES256",
             "source": "modules/lambda/crawler.zip",
-            "source_hash": "mjGneaHh/eJybUFgIY1Ky5s4DQFjcoPV5XeEU/kRfnY=",
+            "source_hash": "Fm+I1mdUhk9CoM4LpbnRxsd++EPUFD2ABhpvwOItxKE=",
             "storage_class": "STANDARD",
             "tags": null,
             "tags_all": {
@@ -1039,7 +924,7 @@
               "Owner": "fiap-pos-tech",
               "Project": "bovespa-pipeline"
             },
-            "version_id": "UM3EuD84lLPD0WVqNidrjlSbipoKBSQF",
+            "version_id": "uLU9rxNlMcV_2_n1SNtyMVl5dGmyfe63",
             "website_redirect": ""
           },
           "sensitive_attributes": [],
@@ -1062,10 +947,10 @@
         {
           "schema_version": 0,
           "attributes": {
-            "id": "538658021678648088",
+            "id": "1779841043824446780",
             "triggers": {
               "package_json_hash": "985f40e208ae68b3629915e7cb5f51380fa0de283c17b08659dca0f2c94b57ff",
-              "source_code_hash": "2465a8a934e4f5e9a6bbb00aee0bd9afceeba02637070edd5efcf1f5ee213e62"
+              "source_code_hash": "3de143b4c7eec61556e4b76812f168744425563c34e1f72588972a62102d89f3"
             }
           },
           "sensitive_attributes": []
@@ -1307,7 +1192,7 @@
               "Owner": "fiap-pos-tech",
               "Project": "bovespa-pipeline"
             },
-            "version_id": "DpfPODEBQSf0j2FfArWMVJYY7q7imDXT",
+            "version_id": "null",
             "website_redirect": ""
           },
           "sensitive_attributes": [],
@@ -1366,7 +1251,7 @@
               "Owner": "fiap-pos-tech",
               "Project": "bovespa-pipeline"
             },
-            "version_id": "JPzBThMU3CfcmHd1NoObiq9Gk5YCCsiZ",
+            "version_id": "U8vMx4m1K32ReJ9kmplp_p1eP6DUeZby",
             "website_redirect": ""
           },
           "sensitive_attributes": [],
@@ -1387,12 +1272,12 @@
         {
           "schema_version": 0,
           "attributes": {
-            "b64_std": "49F7Dg==",
-            "b64_url": "49F7Dg",
+            "b64_std": "5dGU8w==",
+            "b64_url": "5dGU8w",
             "byte_length": 4,
-            "dec": "3822156558",
-            "hex": "e3d17b0e",
-            "id": "49F7Dg",
+            "dec": "3855717619",
+            "hex": "e5d194f3",
+            "id": "5dGU8w",
             "keepers": null,
             "prefix": null
           },
