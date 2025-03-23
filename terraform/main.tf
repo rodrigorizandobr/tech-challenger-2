@@ -1,64 +1,43 @@
-terraform {
-  required_version = ">= 1.0.0"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
+# Configuração do provider AWS
+provider "aws" {
+  region = var.aws_region
+
+  default_tags {
+    tags = local.common_tags
   }
 }
 
-provider "aws" {
-  region = var.aws_region
-}
-
-# Módulo S3 primeiro para criar o bucket
+# Módulos
 module "s3" {
   source = "./modules/s3"
-  
   environment = var.environment
   bucket_name = var.bucket_name
 }
 
-# Módulo IAM em seguida
-module "iam" {
-  source = "./modules/iam"
-  
-  environment = var.environment
-  bucket_name = module.s3.bucket_name
-}
-
-# Módulo Glue antes da Lambda
 module "glue" {
   source = "./modules/glue"
-  
   environment = var.environment
-  glue_role_arn = module.iam.glue_role_arn
   bucket_name = module.s3.bucket_name
+  bucket_arn = module.s3.bucket_arn
 }
 
-# Módulo Lambda por último
 module "lambda" {
   source = "./modules/lambda"
-  
   environment = var.environment
-  lambda_role_arn = module.iam.lambda_role_arn
   bucket_name = module.s3.bucket_name
-  glue_job_name = module.glue.glue_job_name
+  bucket_arn = module.s3.bucket_arn
+  glue_workflow_name = module.glue.glue_workflow_name
+  glue_workflow_arn = module.glue.glue_workflow_arn
 }
 
-# Configurar a notificação do bucket após a criação da Lambda
-resource "aws_s3_bucket_notification" "raw_bucket_notification" {
-  bucket = module.s3.bucket_name
+module "eventbridge" {
+  source = "./modules/eventbridge"
+  environment = var.environment
+  lambda_function_arn = module.lambda.crawler_function_arn
+}
 
-  lambda_function {
-    lambda_function_arn = module.lambda.lambda_function_arn
-    events              = ["s3:ObjectCreated:*"]
-    filter_prefix       = "raw/"
-    filter_suffix       = ".parquet"
-  }
-
-  depends_on = [
-    module.lambda
-  ]
-} 
+module "athena" {
+  source = "./modules/athena"
+  environment = var.environment
+  glue_database_name = module.glue.glue_database_name
+}
