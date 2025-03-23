@@ -1,3 +1,4 @@
 modules
 .terraform
 .DS_Store
+*.tfstate*
