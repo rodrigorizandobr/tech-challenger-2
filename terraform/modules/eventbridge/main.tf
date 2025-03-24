@@ -1,6 +1,6 @@
 resource "aws_cloudwatch_event_rule" "crawler_schedule" {
   name                = "b3-crawler-schedule-${var.environment}"
-  description         = "Agenda para executar o crawler da B3 a cada minuto"
+  description         = "Agenda para executar o crawler da B3 a cada 5 minutos"
   schedule_expression = "rate(5 minutes)"
 }
 

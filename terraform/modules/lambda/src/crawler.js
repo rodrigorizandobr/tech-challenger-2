@@ -7,7 +7,6 @@ const {
 } = require('./crawler-common');
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3();
-const glue = new AWS.Glue();
 
 exports.handler = async (event, context) => {
     let browser = null;
@@ -45,21 +44,12 @@ exports.handler = async (event, context) => {
         }).promise();
         console.log('Arquivo Parquet enviado para:', parquetKey);
 
-        // Após salvar o parquet no S3, acionar o Glue Workflow
-        console.log('Acionando Workflow do Glue...');
-        const glueParams = {
-            Name: process.env.GLUE_WORKFLOW_NAME // Nome do workflow Glue
-        };
-
-        const response = await glue.startWorkflowRun(glueParams).promise();
-        console.log('Workflow do Glue acionado com sucesso:', response);
-
         return {
             statusCode: 200,
             body: JSON.stringify({
                 status: 'success',
                 parquetKey,
-                message: 'Arquivo Parquet enviado com sucesso para o S3 e Workflow do Glue acionado'
+                message: 'Arquivo Parquet enviado com sucesso para o S3'
             })
         };
     } catch (error) {

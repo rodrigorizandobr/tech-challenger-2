@@ -10,16 +10,20 @@ variable "environment" {
   default     = "dev"
 }
 
-variable "bucket_name" {
-  description = "Nome do bucket S3 para armazenar os dados"
+# Nome fixo do bucket, sem sufixo aleatório
+variable "bucket_name_prefix" {
+  description = "Prefixo do nome do bucket S3 para armazenar os dados"
   type        = string
-  default     = "bovespa-pipeline-data"
+  default     = "bovespa-pipeline"
 }
 
 # Variáveis locais para uso interno
 locals {
   project_name = "bovespa-pipeline"
   owner       = "fiap-pos-tech"
+  
+  # Nome fixo do bucket
+  bucket_name = "${var.bucket_name_prefix}-${var.environment}"
   
   # Tags comuns para todos os recursos
   common_tags = {

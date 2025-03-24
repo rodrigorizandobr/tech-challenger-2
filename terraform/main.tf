@@ -11,14 +11,7 @@ provider "aws" {
 module "s3" {
   source = "./modules/s3"
   environment = var.environment
-  bucket_name = var.bucket_name
-}
-
-module "glue" {
-  source = "./modules/glue"
-  environment = var.environment
-  bucket_name = module.s3.bucket_name
-  bucket_arn = module.s3.bucket_arn
+  bucket_name = local.bucket_name
 }
 
 module "lambda" {
@@ -26,8 +19,6 @@ module "lambda" {
   environment = var.environment
   bucket_name = module.s3.bucket_name
   bucket_arn = module.s3.bucket_arn
-  glue_workflow_name = module.glue.glue_workflow_name
-  glue_workflow_arn = module.glue.glue_workflow_arn
 }
 
 module "eventbridge" {
@@ -36,9 +27,13 @@ module "eventbridge" {
   lambda_function_arn = module.lambda.crawler_function_arn
 }
 
-module "athena" {
-  source = "./modules/athena"
-  environment = var.environment
-  glue_database_name = module.glue.glue_database_name
-  bucket_name = module.s3.bucket_name
+# Outputs para informar valores importantes após aplicação
+output "bucket_name" {
+  description = "Nome do bucket S3 criado para o pipeline"
+  value = module.s3.bucket_name
+}
+
+output "lambda_function_name" {
+  description = "Nome da função Lambda do crawler"
+  value = module.lambda.crawler_function_name
 }

@@ -35,13 +35,15 @@ resource "aws_lambda_function" "crawler" {
   role            = aws_iam_role.lambda_role.arn
   handler         = "crawler.handler"
   runtime         = "nodejs18.x"
-  timeout         = 300
-  memory_size     = 2048
+  timeout         = 600  # 10 minutos
+  memory_size     = 3008 # Valor máximo permitido
 
   environment {
     variables = {
       BUCKET_NAME = var.bucket_name
-      GLUE_WORKFLOW_NAME = var.glue_workflow_name
+      # Adicionar variáveis para melhorar logs e debug
+      LOG_LEVEL = "DEBUG"
+      NODE_OPTIONS = "--enable-source-maps"
     }
   }
 }
@@ -75,7 +77,8 @@ resource "aws_iam_role_policy" "lambda_policy" {
         Action = [
           "s3:PutObject",
           "s3:GetObject",
-          "s3:ListBucket"
+          "s3:ListBucket",
+          "s3:DeleteObject"
         ]
         Resource = [
           var.bucket_arn,
@@ -87,17 +90,22 @@ resource "aws_iam_role_policy" "lambda_policy" {
         Action = [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
-          "logs:PutLogEvents"
+          "logs:PutLogEvents",
+          "logs:DescribeLogStreams",
+          "logs:GetLogEvents"
         ]
         Resource = ["arn:aws:logs:*:*:*"]
       },
       {
         Effect = "Allow"
         Action = [
-          "glue:StartWorkflowRun",
-          "glue:GetWorkflow"
+          "ec2:CreateNetworkInterface",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DeleteNetworkInterface",
+          "ec2:AssignPrivateIpAddresses",
+          "ec2:UnassignPrivateIpAddresses"
         ]
-        Resource = [var.glue_workflow_arn]
+        Resource = ["*"]
       }
     ]
   })
